@@ -40,8 +40,8 @@ def main():
             })
 
             # generated_text = output[0]['generated_text']
-            # print(generated_text)
-			print (output)
+            # print(generated_text
+            print (output)
 
             pattern = r'\[(.*?)\]'
 
