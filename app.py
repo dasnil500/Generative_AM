@@ -3,7 +3,7 @@ from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
 import torch
 import re
 # Load the pre-trained model and tokenizer
-checkpoint_path = "Frontend/"
+checkpoint_path = "dasnil500/end-to-end-am"
 model = AutoModelForSeq2SeqLM.from_pretrained(checkpoint_path)
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 model = model.to(device)
