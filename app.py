@@ -39,9 +39,9 @@ def main():
                 "parameters" : {"max_length": 512}
             })
 
-            # generated_text = output[0]['generated_text']
-            # print(generated_text
-            print (output)
+            generated_text = output['generated_text']
+            print(generated_text)
+            # print (output)
 
             pattern = r'\[(.*?)\]'
 
