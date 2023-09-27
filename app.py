@@ -39,14 +39,14 @@ def main():
                 "parameters" : {"max_length": 512}
             })
 
-            generated_text = output['generated_text']
-            print(generated_text)
+            result = output[0]['generated_text']
+            print(result)
             # print (output)
 
             pattern = r'\[(.*?)\]'
 
             # Find all matches in the text
-            matches = re.findall(pattern, generated_text, re.DOTALL)
+            matches = re.findall(pattern, result, re.DOTALL)
             print(matches)
             # Initialize lists to store extracted data
             text1_list = []
