@@ -43,61 +43,64 @@ def main():
             print(result)
             # print (output)
 
-            pattern = r'\[(.*?)\]'
-
-            # Find all matches in the text
-            matches = re.findall(pattern, result, re.DOTALL)
-            print(matches)
-            # Initialize lists to store extracted data
-            text1_list = []
-            text2_list = []
-            type_list = []
-            relation_list = []
-            text_type_rel = {"Claim":[],"Premise":[],"MajorClaim":[]}
-
-            # Process each match
-            for match in matches:
-                # parts = match.split('|')
-                parts = re.split(r'[|=]',match)
-                print(parts)
-                if(parts[1].strip()=="Claim"):
-                    text_type_rel["Claim"].append(parts[0].strip())
-                if(parts[1].strip()=="Premise"):
-                    text_type_rel["Premise"].append(parts[0].strip())
-                if(parts[1].strip()=="MajorClaim"):
-                    text_type_rel["MajorClaim"].append(parts[0].strip())
-                print("\n\n")
-                print(text_type_rel)
-                if len(parts) == 4:
-                    text1_list.append(parts[0].strip())
-                    text2_list.append(parts[3].strip())
-                    type_list.append(parts[1].strip())
-                    relation_list.append(parts[2].strip())
-                if len(parts)==2:
-                    text1_list.append(parts[0].strip())
-                    text2_list.append('.')
-                    type_list.append(parts[1].strip())
-                    relation_list.append('.')
-            output_text =''
-            for i in range(len(text1_list)):
-                st.subheader(f"{i + 1}")
-                # output_text+="\n"
-                x_claim='Claim'
-                x_majorclaim='MajorClaim'
-                x_premise='Premise'
-                x=''
-                if(text2_list[i] in text_type_rel["Claim"]):
-                    x=x_claim
-                if(text2_list[i] in text_type_rel["Premise"]):
-                    x=x_premise
-                if(text2_list[i] in text_type_rel["MajorClaim"]):
-                    x=x_majorclaim
-                if(type_list[i]!='Claim'):
-                    st.write(f"{type_list[i]} : {text1_list[i]}")
-                    st.write(f"{x}: {text2_list[i]}")
-                    st.write(f"Relation: {relation_list[i]}")
-                else:
-                    st.write(f"{type_list[i]} : {text1_list[i]}")
+			if (len(result) == 0):
+				st.write(f"No arguments are detected. Please try with a bigger text.")
+			else:
+	            pattern = r'\[(.*?)\]'
+	
+	            # Find all matches in the text
+	            matches = re.findall(pattern, result, re.DOTALL)
+	            print(matches)
+	            # Initialize lists to store extracted data
+	            text1_list = []
+	            text2_list = []
+	            type_list = []
+	            relation_list = []
+	            text_type_rel = {"Claim":[],"Premise":[],"MajorClaim":[]}
+	
+	            # Process each match
+	            for match in matches:
+	                # parts = match.split('|')
+	                parts = re.split(r'[|=]',match)
+	                print(parts)
+	                if(parts[1].strip()=="Claim"):
+	                    text_type_rel["Claim"].append(parts[0].strip())
+	                if(parts[1].strip()=="Premise"):
+	                    text_type_rel["Premise"].append(parts[0].strip())
+	                if(parts[1].strip()=="MajorClaim"):
+	                    text_type_rel["MajorClaim"].append(parts[0].strip())
+	                print("\n\n")
+	                print(text_type_rel)
+	                if len(parts) == 4:
+	                    text1_list.append(parts[0].strip())
+	                    text2_list.append(parts[3].strip())
+	                    type_list.append(parts[1].strip())
+	                    relation_list.append(parts[2].strip())
+	                if len(parts)==2:
+	                    text1_list.append(parts[0].strip())
+	                    text2_list.append('.')
+	                    type_list.append(parts[1].strip())
+	                    relation_list.append('.')
+	            output_text =''
+	            for i in range(len(text1_list)):
+	                st.subheader(f"{i + 1}")
+	                # output_text+="\n"
+	                x_claim='Claim'
+	                x_majorclaim='MajorClaim'
+	                x_premise='Premise'
+	                x=''
+	                if(text2_list[i] in text_type_rel["Claim"]):
+	                    x=x_claim
+	                if(text2_list[i] in text_type_rel["Premise"]):
+	                    x=x_premise
+	                if(text2_list[i] in text_type_rel["MajorClaim"]):
+	                    x=x_majorclaim
+	                if(type_list[i]!='Claim'):
+	                    st.write(f"{type_list[i]} : {text1_list[i]}")
+	                    st.write(f"{x}: {text2_list[i]}")
+	                    st.write(f"Relation: {relation_list[i]}")
+	                else:
+	                    st.write(f"{type_list[i]} : {text1_list[i]}")
 
                 
 
