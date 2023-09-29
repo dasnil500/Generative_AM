@@ -128,7 +128,7 @@ def main():
 
             # Print the grouped data
             for tgt, src in grouped_data.items():
-                st.markdown(f"<b style='font-size:{'25px'}'>{tgt[0]}</b><br>{tgt[1]}\n", unsafe_allow_html=True)
+                st.markdown(f"<b style='font-size:{'25px'}'>{tgt[0]}</b><br>{tgt[1]}", unsafe_allow_html=True)
                 for item in src:
                     src_comp, src_type, relation = item
                     st.markdown(f"<b style='font-size:{'20px'}'>{src_type}:  </b>{src_comp}", unsafe_allow_html=True)
@@ -138,6 +138,25 @@ def main():
         else:
             for tgt in list1:
                 st.markdown(f"<b style='font-size:{'25px'}'>{tgt[0]}</b><br>{tgt[1]}\n", unsafe_allow_html=True)
+
+
+        # --------------------------------------------------------------------------------
+        # pairs are detected but claim or majorclaim are not detected
+        if (len(final_list_of_tuples) == 0 and len(list1) == 0):
+            st.markdown(f"<b style='font-size:{'25px'}'>Note:  </b>Listing down argument pairs with low confidence....", unsafe_allow_html=True)
+            for pattern_string in sentences:
+                match = re.match(pattern2, pattern_string)
+                if match:
+                    argument = match.group(1)
+                    argument = ",".join(argument.split(" ,")).strip()
+                    arg_type = match.group(2)
+                    relation = match.group(3)
+                    connected_to = match.group(4)
+                    connected_to = ",".join(connected_to.split(" ,")).strip()
+                    st.markdown(f"<b style='font-size:{'25px'}'>Premise/Claim</b><br>{connected_to}", unsafe_allow_html=True)
+                    st.markdown(f"<b style='font-size:{'20px'}'>{arg_type}:  </b>{argument}", unsafe_allow_html=True)
+                    st.markdown(f"<b style='font-size:{'20px'}'>Relation:  </b>{relation}", unsafe_allow_html=True)
+                    
 
 if __name__ == "__main__":
     main()
