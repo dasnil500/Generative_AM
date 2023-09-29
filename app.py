@@ -6,8 +6,8 @@ API_URL = "https://api-inference.huggingface.co/models/dasnil500/end-to-end-am"
 headers = {"Authorization": "Bearer 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"}
 
 def query(payload):
-	response = requests.post(API_URL, headers=headers, json=payload)
-	return response.json()
+    response = requests.post(API_URL, headers=headers, json=payload)
+    return response.json()
 
 # Load the pre-trained model and tokenizer
 # checkpoint_path = "Frontend/"
@@ -17,6 +17,7 @@ def query(payload):
 # tokenizer = AutoTokenizer.from_pretrained('t5-base', model_max_length=512)
 
 # I do not understand the reason behind the protest. Farm law will greatly benefit small & marginal farmers of our country.Because, currently they cannot bargain for their produce and get a better price and cannot invest in technology to improve the productivity of the farms. This law will allow farmers to sell their product outside APMC “mandis” to whoever they want and get better price for their produce. We appreciate Government’s sensitivity towards us. But Government should listen our side too. This law will dismantle the minimum support price (MSP) system. Because, over time big corporate houses will dictate terms and we will end up getting less for our crops we produce. Government should give us a legal assurance that the MSP system will continue alongside.
+
 def main():
     st.title("A Framework for Argument Mining")
     st.sidebar.title("Settings")
@@ -26,6 +27,8 @@ def main():
     st.sidebar.button("Fetch Top 300 Twitter using API")
     option = st.sidebar.selectbox("Select a topic:", ["Topic 1", "Topic 2", "Topic 3"])
     
+    generated_text = None  # Initialize generated_text variable
+
     if st.button("Generate Output"):
         if input_sentence:
             # # Tokenize the input text
@@ -38,81 +41,103 @@ def main():
                 "inputs": input_sentence,
                 "parameters" : {"max_length": 512}
             })
-            if (len(output) == 0):
-                generated_text = ""
-            else:
+            print(f"Model output is :\n{output}\n")
+
+            try:
                 generated_text = output[0]['generated_text']
-            print(generated_text)
+            except KeyError:
+                st.write("Please wait for 40 seconds to start the engine....")
 
-
-            if (len(generated_text) == 0):
-                st.write(f"No arguments detected, please try with a bigger paragraph.")
-            else:
-
-                pattern = r'\[(.*?)\]'
-
-                # Find all matches in the text
-                matches = re.findall(pattern, generated_text, re.DOTALL)
-                print(matches)
-                # Initialize lists to store extracted data
-                text1_list = []
-                text2_list = []
-                type_list = []
-                relation_list = []
-                text_type_rel = {"Claim":[],"Premise":[],"MajorClaim":[]}
-
-                # Process each match
-                for match in matches:
-                    # parts = match.split('|')
-                    parts = re.split(r'[|=]',match)
-                    print(parts)
-                    if(parts[1].strip()=="Claim"):
-                        text_type_rel["Claim"].append(parts[0].strip())
-                    if(parts[1].strip()=="Premise"):
-                        text_type_rel["Premise"].append(parts[0].strip())
-                    if(parts[1].strip()=="MajorClaim"):
-                        text_type_rel["MajorClaim"].append(parts[0].strip())
-                    print("\n\n")
-                    print(text_type_rel)
-                    if len(parts) == 4:
-                        text1_list.append(parts[0].strip())
-                        text2_list.append(parts[3].strip())
-                        type_list.append(parts[1].strip())
-                        relation_list.append(parts[2].strip())
-                    if len(parts)==2:
-                        text1_list.append(parts[0].strip())
-                        text2_list.append('.')
-                        type_list.append(parts[1].strip())
-                        relation_list.append('.')
-                output_text =''
-                for i in range(len(text1_list)):
-                    st.subheader(f"{i + 1}")
-                    # output_text+="\n"
-                    x_claim='Claim'
-                    x_majorclaim='MajorClaim'
-                    x_premise='Premise'
-                    x=''
-                    if(text2_list[i] in text_type_rel["Claim"]):
-                        x=x_claim
-                    if(text2_list[i] in text_type_rel["Premise"]):
-                        x=x_premise
-                    if(text2_list[i] in text_type_rel["MajorClaim"]):
-                        x=x_majorclaim
-                    if(type_list[i]!='Claim'):
-                        st.write(f"{type_list[i]} : {text1_list[i]}")
-                        st.write(f"{x}: {text2_list[i]}")
-                        st.write(f"Relation: {relation_list[i]}")
-                    else:
-                        st.write(f"{type_list[i]} : {text1_list[i]}")
-
-                
-
-
-            # Display the generated text
-            # st.subheader("Argumented Mining Data:")
-            # st.write(output_text)
         else:
-            st.warning("Please enter some text.")
+            st.warning("Please enter some argumentative text....")
+
+    # Rest of your code
+    if generated_text:
+        # ------------------------------------------------------------------
+        # Define a regular expression pattern to match [ text ] patterns
+        pattern = r'\[([^]]+)\]'
+
+        # Find all matches in the text
+        sentences = re.findall(pattern, generated_text)
+        if not sentences:
+            st.write ("No arguments detected... Please try with any argumentative paragraphs...")
+        # print (sentences)
+
+        # Define a regular expression pattern to match Claims, MajorClaims, or Premises
+        pattern1 = r'\s*(.+?)\s+\|\s+(Claim|MajorClaim|Premise)\s*$'
+
+        gt_argument_types = ["Premise", "Claim", "MajorClaim"]
+        list1 = list()
+
+        for pattern_string in sentences:
+            match = re.match(pattern1, pattern_string)
+            # print (match)
+            if match:
+                argument = match.group(1)
+                argument = ",".join(argument.split(" ,")).strip()
+                arg_type = match.group(2)
+                if arg_type in gt_argument_types:
+                    list1.append((arg_type,argument))
+        # print (list1)
+
+
+        # ------------------------------------------------------------------
+        final_list_of_tuples = list()
+        pattern2 = r'(.+?)\s+\|\s+(Claim|MajorClaim|Premise)(?:\s+\|\s+(Support|Attack)\s*=\s*(.*?))?$'
+
+        for pattern_string in sentences:
+            match = re.match(pattern2, pattern_string)
+
+            if match:
+                argument = match.group(1)
+                argument = ",".join(argument.split(" ,")).strip()
+                arg_type = match.group(2)
+                relation = match.group(3)
+                connected_to = match.group(4)
+                connected_to = ",".join(connected_to.split(" ,")).strip()
+
+                for item in list1:
+                    if (item[1]) == connected_to:
+                        final_list_of_tuples.append((item, argument, arg_type, relation))
+
+        # print (list1)
+        # print (final_list_of_tuples)
+
+
+        # ------------------------------------------------------------------
+        if (final_list_of_tuples):
+
+            # Create a dictionary to group the data
+            grouped_data = {}
+
+            for item in final_list_of_tuples:
+                argument_tuple = item[0]  # The first element in the tuple is the claim
+                source_argument = item[1]  # The second element in the tuple is the premise
+                source_type = item[2]  # The third element in the tuple is the relation type
+                relation = item[3]  # The fourth element in the tuple is the relation
+
+                # Check if the claim is already in the grouped data
+                if argument_tuple in grouped_data:
+                    # Append the premise and relation to the existing claim
+                    grouped_data[argument_tuple].append((source_argument, source_type, relation))
+                else:
+                    # Create a new entry for the claim and initialize it with the premise and relation
+                    grouped_data[argument_tuple] = [(source_argument, source_type, relation)]
+
+            # print (grouped_data)
+
+            # Print the grouped data
+            for tgt, src in grouped_data.items():
+                st.markdown(f"<b style='font-size:{'25px'}'>{tgt[0]}</b><br>{tgt[1]}\n", unsafe_allow_html=True)
+                for item in src:
+                    src_comp, src_type, relation = item
+                    st.markdown(f"<b style='font-size:{'20px'}'>{src_type}:  </b>{src_comp}", unsafe_allow_html=True)
+                    st.markdown(f"<b style='font-size:{'20px'}'>Relation:  </b>{relation}", unsafe_allow_html=True)
+
+        # else block means there are no claim-premise pairs are detected
+        else:
+            for tgt in list1:
+                st.markdown(f"<b style='font-size:{'25px'}'>{tgt[0]}</b><br>{tgt[1]}\n", unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()
