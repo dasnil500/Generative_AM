@@ -38,8 +38,10 @@ def main():
                 "inputs": input_sentence,
                 "parameters" : {"max_length": 512}
             })
-
-            generated_text = output[0]['generated_text']
+            if (len(output) == 0):
+                generated_text = ""
+            else:
+                generated_text = output[0]['generated_text']
             print(generated_text)
 
 
